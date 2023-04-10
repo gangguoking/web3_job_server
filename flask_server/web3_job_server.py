@@ -1,5 +1,4 @@
-import random
-import time
+import logging
 from flask import Flask, request, json
 
 from flask_server.utils import web3_career_redis
@@ -24,12 +23,14 @@ def test_post():
     return d1 + d2
 
 
+"""
 # 处理极简交易接口
 @app.route('/job/web3.career', methods=['POST'])
 def web3_career_job_list():
     # 拿到客户端返回的数据
     res = json.loads(request.get_data())
-    data = web3_career_redis.get_web3_career_jobs_all()
+    web3_career_jobs_all = web3_career_redis.get_web3_career_jobs_all()
+    return_body = {'data_list': web3_career_jobs_all}
 
     # 把out_trade_no改成客户端发送过来的数据
 
@@ -37,7 +38,28 @@ def web3_career_job_list():
     # if auth_code != '28763443825664394':
     #     return {'coode': '50000', 'msg': '请求码验证失败'}
 
-    return data
+    return return_body
+"""
+
+
+# 处理极简交易接口
+@app.route('/job/web3.career/all', methods=['GET'])
+def web3_career_job_list():
+    # 拿到客户端返回的数据
+    try:
+        web3_career_jobs_all = web3_career_redis.get_web3_career_jobs_all()
+        return_body = {'data_list': web3_career_jobs_all}
+    except Exception as exc:
+        logging.error(exc)
+        return {'coode': '50000', 'msg': '服务器异常，请重试'}
+
+    # 把out_trade_no改成客户端发送过来的数据
+
+    # 验证授权码
+    # if auth_code != '28763443825664394':
+    #     return {'coode': '50000', 'msg': '请求码验证失败'}
+
+    return return_body
 
 
 if __name__ == '__main__':
